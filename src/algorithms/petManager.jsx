@@ -5,18 +5,15 @@ const supabase = createClient(
   process.env.REACT_APP_SUPABASE_ANON_KEY
 );
 
-// Configurações do algoritmo
-const INTERVAL_TIME = 60000; // Intervalo em milissegundos (1 minuto)
+const INTERVAL_TIME = 60000; 
 const DECAY_RATES = {
-  health: -1, // Reduz a vida se fome for alta
-  happiness: -2, // Reduz felicidade com o tempo
-  hunger: 1, // Aumenta a fome com o tempo
+  health: -1, 
+  happiness: -2, 
+  hunger: 1, 
 };
 
-// Atualiza o estado do pet
 const updatePetStats = async (petId) => {
   try {
-    // Busca o estado atual do pet
     const { data: pet, error: fetchError } = await supabase
       .from("pets_tg")
       .select("*")
@@ -25,21 +22,18 @@ const updatePetStats = async (petId) => {
 
     if (fetchError) throw fetchError;
 
-    // Lógica de atualização
     let { health, happiness, hunger } = pet;
 
     if (hunger >= 70) {
-      health += DECAY_RATES.health; // Reduz saúde se fome alta
+      health += DECAY_RATES.health; 
     }
     happiness += DECAY_RATES.happiness;
     hunger += DECAY_RATES.hunger;
 
-    // Garante que os valores estão nos limites
     health = Math.max(0, Math.min(100, health));
     happiness = Math.max(0, Math.min(100, happiness));
     hunger = Math.max(0, Math.min(100, hunger));
 
-    // Atualiza o estado no banco
     const { error: updateError } = await supabase
       .from("pets_tg")
       .update({ health, happiness, hunger })
@@ -55,7 +49,6 @@ const updatePetStats = async (petId) => {
   }
 };
 
-// Interações do usuário
 const interactWithPet = async (petId, action) => {
   try {
     const { data: pet, error: fetchError } = await supabase
@@ -69,15 +62,15 @@ const interactWithPet = async (petId, action) => {
     let { health, happiness, hunger } = pet;
 
     switch (action) {
-      case "feed": // Alimentar
+      case "feed":
         hunger = Math.max(0, hunger - 20);
         happiness = Math.min(100, happiness + 10);
         break;
-      case "play": // Brincar
+      case "play":
         happiness = Math.min(100, happiness + 15);
         hunger = Math.min(100, hunger + 5);
         break;
-      case "sleep": // Dormir
+      case "sleep":
         health = Math.min(100, health + 10);
         hunger = Math.min(100, hunger + 5);
         break;
